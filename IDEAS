@@ -1,0 +1,25 @@
+* Rexegam (Regular Expression Exam). Present the user with a set of positive
+  examples and a set of negative examples and ask them for an RE that matches
+  the former but not the latter.
+
+  Generate a random RE r1, then modify its abstract syntax tree somehow to get
+  r2. For each RE, use its equivalent CFG to generate the example strings.
+
+  Either have the user use Python(/Perl) regexes and then check if they match
+  using Python's re module, or have the user use traditional regular expressions
+  and use the CFG I created to parse. (REs would be way faster though.)
+
+
+* Generate random string matching a RE. Possibly use the format of Python REs
+  and compile them down to the basic REs plus some added functions on top in
+  order to get e.g. memory matches.
+
+
+* Program that generates random programs from some programming language. I could
+  use the CFL stuff I made so far to generate ASTs. Then I'd have to generate
+  strings, identifier names, etc.. The hard part would be making programs that
+  would actually run (i.e. not calling functions that haven't been defined).
+  
+
+* Grammar ambiguity tester. Check whether strings of the same length occur
+  at roughly the same frequency.
