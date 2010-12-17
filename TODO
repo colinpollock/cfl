@@ -1,5 +1,14 @@
 * Write function to convert grammar to CNF.
 
+* CFLGenerator.__str__
+
+* Optionally pass a separator to CFLGenerator.generate that would be inserted
+  between terminals.
+
+* Currently the generator's definition of length is the number of nonterminals.
+  It would be good to add the option for "length" to mean the number of 
+  characters.
+
 * Write tests for:
   *  the preprocessing of CFLGenerator
   *  Check randomness of generated strings.
@@ -12,13 +21,10 @@
 * Add option to generate() to allow different lengths to be specified. Maybe
   allow a container to be passed as the length?
 
-* Write a wrapper function to test whether a grammar is ambiguous for strings of
-  certain lengths by assuming that if the grammar truly is unambiguous then all
-  strings of length N will occur roughly the same number of times.
-
 * Use a profiler, maybe code parts in C.
   
 * Use NLTK's probabilistic CF rules?
 
 * Split some projects off. Add some subdirs for tests, individual projects, 
   etc..
+

@@ -1,3 +1,6 @@
 *pyc
 play
+*.cfg
+*.swp
+nltk_improvements.txt
 
