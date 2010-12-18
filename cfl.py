@@ -92,8 +92,8 @@ class CFLGenerator(object):
     def generate(self, length):
         """Return a string of length `length` that is in L(self.grammar).
         
-        Return None if no strings of the requested length can be generated.
-        NOTE: It'd be easier to run test generators if I raise an exception.
+        Raise GenerationFailure if no strings of the requested length can be 
+        generated.
         """
         # Update self._counts for string lengths up to `length` if necessary.
         if length > self.length:
@@ -111,7 +111,7 @@ class CFLGenerator(object):
             if productions and not terminals:
                 #TODO: Add exception for when the grammar can't generate a 
                 #      string of the requested length.
-                return None
+                raise GenerationFailure(length)
             choice = random.choice(terminals)
             return choice
 
