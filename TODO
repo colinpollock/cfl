@@ -4,6 +4,8 @@
   It would be good to add the option for "length" to mean the number of 
   characters. Actually this is dumb. Remove?
 
+* Put try/except in main() to handle GenerationFailure. 
+
 * Write tests for:
   *  the preprocessing of CFLGenerator
   *  Check randomness of generated strings.

@@ -5,10 +5,9 @@
 from __future__ import division
 
 from optparse import OptionParser
-from pprint import pprint
-import string
-import sys
 import random
+import simplejson
+import sys
 
 import nltk
 from nltk.grammar import parse_cfg, Nonterminal, ContextFreeGrammar, Production
@@ -59,6 +58,7 @@ class CFLGenerator(object):
 
         # Initialize _counts then populate it in _preprocess().
         self._counts = {}
+        self.length = 0
         self._preprocess(length)
 
 
@@ -88,9 +88,9 @@ class CFLGenerator(object):
             else:
                 return 0
 
-        B, C = prod.rhs()[0], prod.rhs()[1]
-        return sum([self.count_by_nonterm(B, k) *  
-                    self.count_by_nonterm(C, length - k)
+        left, right = prod.rhs()[0], prod.rhs()[1]
+        return sum([self.count_by_nonterm(left, k) *  
+                    self.count_by_nonterm(right, length - k)
                     for k in range(1, length)])
 
 
@@ -174,7 +174,7 @@ class CFLGenerator(object):
 
         # Extend the count lists with 0s
         diff = new_length - self.length
-        for key, value in self._counts.iteritems():
+        for value in self._counts.itervalues():
             value += [0 for i in range(diff)]
 
         for L in range(self.length + 1, new_length + 1):
@@ -302,9 +302,9 @@ def main(argv):
     results = [generator.generate(length()) for i in range(options.number)]
     if options.the_format == 'string':
         for res in results:
-            print res
+            print >> out, res
     elif options.the_format == 'json':
-        print simplejson.dumps(results)
+        print >> out, simplejson.dumps(results)
 
 
 if __name__ == '__main__':
