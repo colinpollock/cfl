@@ -47,7 +47,7 @@ def check_ambiguity(grammar):
 
 def make_strings(generator, count, length):
     """Generate and return a list of `count` strings of length `length`."""
-    return [generator.generate(length) for i in range(count)]
+    return [''.join(generator.generate(length)) for i in range(count)]
 
 
 if __name__ == '__main__':
