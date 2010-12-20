@@ -42,21 +42,22 @@ class CFLGenerator(object):
             raise ValueError('Arg grammar must be nltk.grammar.Grammar or str.')
         
         if not self.grammar.is_chomsky_normal_form():
-            convert_to_cnf(self.grammar)
-            print self.grammar
+            raise ValueError('Input grammar must be in CNF '
+                             '(conversion method isn\'t implemented)')
+            #convert_to_cnf(self.grammar)
 
         self.productions = self.grammar.productions()
 
-        # NOTE: Is it ok to assume all nonterminals occur on a LHS?
+        # TODO: Is it ok to assume all nonterminals occur on a LHS?
+        # Technically yes, but check whether nltk's is_cnf ensures it.
         self.nonterminals = set([p.lhs() for p in self.productions])
 
-        self.terminals = set()
-        for prod in self.productions:
-            for token in prod.rhs():
-                if not isinstance(token, Nonterminal):
-                    self.terminals.add(token)
+        self.terminals = set([token for prod in self.productions 
+                              for token in prod.rhs()
+                              if not isinstance(token, Nonterminal)])
 
-        # Initialize _counts then populate it in _preprocess().
+        # Initialize self._counts then populate it in _preprocess(). 
+        # self.length is the string length that has been preprocessed.
         self._counts = {}
         self.length = 0
         self._preprocess(length)
