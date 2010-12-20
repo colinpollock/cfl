@@ -1,6 +1,9 @@
 *pyc
-play
-*.cfg
+*pyo
 *.swp
+
+*.cfg
+play
+CHANGE_LOG
 nltk_improvements.txt
 

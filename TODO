@@ -1,13 +1,8 @@
 * Write function to convert grammar to CNF.
 
-* CFLGenerator.__str__
-
-* Optionally pass a separator to CFLGenerator.generate that would be inserted
-  between terminals.
-
 * Currently the generator's definition of length is the number of nonterminals.
   It would be good to add the option for "length" to mean the number of 
-  characters.
+  characters. Actually this is dumb. Remove?
 
 * Write tests for:
   *  the preprocessing of CFLGenerator
@@ -28,3 +23,5 @@
 * Split some projects off. Add some subdirs for tests, individual projects, 
   etc..
 
+* Implement the O(n) time generation algorithm from Mairson 1995. See if the
+  extra preprocessing time is worth it.
