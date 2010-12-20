@@ -30,7 +30,7 @@ def check_grammar(generator, length):
     N = 2000
     for i in range(N):
         try:
-            string_ = generator.generate(length)
+            string_ = ''.join(generator.generate(length))
         except cfl.GenerationFailure:
             # Skip this grammar since it can't generate strings of the required
             # length and it can't help test randomness.
