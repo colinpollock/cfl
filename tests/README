@@ -1,0 +1,10 @@
+README
+
+For now this directory contains tests for all of the modules. To avoid confusion
+each test filename looks like test_MODULE.py or test_MODULE_SOMETHING.py. For 
+example:
+    test_cfl_counts.py
+    test_cfn.py
+
+The tests are designed to be run with nose. Running `nosetests` in this 
+directory or executing runtests.sh in the parent directory will run all tests.

@@ -1,0 +1,8 @@
+*.pyc
+*.pyo
+
+*.swp
+
+
+#TEMP
+test_cnf.py
