@@ -8,7 +8,7 @@ use the generator will split off.
   grammar module). Its method generate(length) returns a string of the requested
   length that is derivable from the grammar.
 
-  If the input grammar is unambiguous then all strings in the grammare have an
+  If the input grammar is unambiguous then all strings in the grammar have an
   equal probability of being generated. This is accomplished by using the
   algorithm described in Mairson 1994.
 
@@ -18,12 +18,12 @@ use the generator will split off.
   matches the former but not the latter. 
 
   I'm generating a random (traditional) regular expression by generating random
-  strings from a grammar for regular expressions (e.g. "X -> ATOM '*'"). Then
-  I'm modifying the syntax tree of the first regular expression to get a second
-  RE. Then I can convert the REs to CFGs, and then generate strings from
-  them.
+  strings from a grammar for regular expressions (an example of a production is
+  "X -> ATOM '*'"). Then I'm modifying the syntax tree of the first regular 
+  expression to get a second RE. Then I can convert the REs to CFGs, and then 
+  generate strings from them.
 
-* Generate random strings matching a non-traditional RE (i.e. a Perl or Python
+* Generate random strings matching a non-traditional RE (e.g. a Perl or Python
   RE). Perl has a module for this, and I found a C program that does it. The 
   challenge will basically be converting Python REs to CFGs so I can use
   the generator.
