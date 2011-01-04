@@ -86,43 +86,32 @@ def _replace_start(productions, letters):
     pass
 
 # STEP 4 #
-def _remove_empty_productions(input_productions, letters):
+def _remove_empty_productions(productions, letters):
     """Remove productions with empty right hand sides."""
-    #TODO: use the grammar.is_nonempty method to see if this step is necessary
-    #      no: that requires running Grammar.__init__ again
-    #print '*' * 10 + 'ENTERING _remove_empty' + '*' * 10
-    #print 'Productions is:'
-    #print input_productions
-    #print
-    productions = deepcopy(input_productions)
+    copied_prods = deepcopy(productions)
 
     #
     # Find all nonterminals that generate the emptry string.
     #
     # Basis: A nonterminal generates the empty string if it is the LHS of a
     # production thats RHS is empty.
-    gen_empty = [prod.lhs() for prod in productions if len(prod.rhs()) == 0]
+    gen_empty = [prod.lhs() for prod in copied_prods
+                 if len(prod.rhs()) == 0]
     N = len(gen_empty)
     # Induction:
     while True:
-        #print 'gen_empty:', gen_empty
         for nonterm in gen_empty:
-            #for prod in filter(lambda prod: len(prod.rhs()) == 2, productions):
-            for prod in productions:
+            for prod in copied_prods:
                 if nonterm in prod.rhs():
-                    #print 'found %s in %s' % (str(nonterm), str(prod))
                     better = list(prod.rhs())
                     better.remove(nonterm)
-                    #print 'better', better
                     prod._rhs = tuple(better)
-                    #print prod
 
-        gen_empty = [prod.lhs() for prod in productions if len(prod.rhs()) == 0]
+        gen_empty = [prod.lhs() for prod in copied_prods if len(prod.rhs()) == 0]
         new_len = len(gen_empty)
         if new_len == N:
             break
         N = new_len
-    #print gen_empty
 
     # ADD NEW RULES
     #print '\n\nADDING NEW RULES'
@@ -130,10 +119,9 @@ def _remove_empty_productions(input_productions, letters):
 
     #productions[:] = input_productions
     for nonterm in gen_empty: 
-        #print 'Handling nonterm %s' % str(nonterm)
-        for prod in filter(lambda prod: len(prod.rhs()) == 2 and nonterm in prod.rhs(), input_productions):
-            #print '  Handling prod %s' % str(prod)
-            #new_prods.append(prod)
+        prods = [prod for prod in productions
+                 if len(prod.rhs()) == 2 and nonterm in prod.rhs()]
+        for prod in prods:
             rhs = list(prod.rhs())
             while nonterm in rhs:
                 lhs = prod.lhs()
@@ -142,8 +130,8 @@ def _remove_empty_productions(input_productions, letters):
                 new_prods.append(p)
             
         
-    input_productions += new_prods
-    input_productions[:] = [p for p in input_productions if p.rhs()]
+    productions += new_prods
+    productions[:] = [p for p in productions if p.rhs()]
 
 
 def _unit_productions(productions):
@@ -152,11 +140,11 @@ def _unit_productions(productions):
 
 # STEP 5 #
 def _remove_unit_productions(productions, letters):
-    """Remove rules of the form A -> B."""
+    """Return a list of Productions without unit productions. TODO"""
     # Basis step. Add (A, A) for all nonterminals A
     #TODO: is it ok to ignore NTs on RHS?
-    #print "REMOVE UNIT PRODUCTIONS"
-    #print productions
+    print "REMOVE UNIT PRODUCTIONS"
+    print productions
     unit_pairs = defaultdict(set)
     nonterminals = [p.lhs() for p in productions]
     for nt in nonterminals:
@@ -174,33 +162,52 @@ def _remove_unit_productions(productions, letters):
     #
     # Remove Unit Pairs
     #
-    NEW = []
-    for rhs, lhsides in unit_pairs.iteritems():
-        for lhs in lhsides:
-            new_prods = [prod for prod in productions
-                        if len(prod.rhs()) > 1 and prod.lhs() == rhs]
-            #print "%s -> %s" % (lhs, rhs),
-            #print new_prods
-            for prod in new_prods:
-                p = Production(lhs, prod.rhs())
-                NEW.append(p)
-                
+    NEW = set()
+    #for rhs, lhsides in unit_pairs.iteritems():
+    #    for lhs in lhsides:
+    #        new_prods = [prod for prod in productions
+    #                    if len(prod.rhs()) > 1 and prod.lhs() == rhs]
+    #        #print "%s -> %s" % (lhs, rhs),
+    #        #print new_prods
+    #        for prod in new_prods:
+    #            p = Production(lhs, prod.rhs())
+    #            NEW.append(p)
+    print unit_pairs
+    print
+    for (RHS, LHSides) in unit_pairs.iteritems():
+        for LHS in LHSides:
+            print
+            print '(%s, %s)' % (LHS, RHS)
+            print type(LHS), type(RHS)
+            print productions
+
+            for prod in productions:
+                print 'prod:', prod
+                if prod.lhs() == RHS:
+                    print '  match for RHS'
+                    if isinstance(prod.rhs()[0], basestring) or len(prod.rhs()) > 1:
+                        print 
+                        print '  GOOD PROD', prod
+                        P = Production(LHS, prod.rhs())
+                        print '  ADDING', P
+                        NEW.add(P)
+                    else:
+                        print '  BAD PROD'
+                else:
+                    print '  no match for RHS'
+
+    return NEW
+
     #print NEW
-    productions += NEW
-    productions[:] = list(set([p for p in productions 
-                if len(p.rhs()) > 1 or isinstance(p.rhs()[0], basestring)]))
-
-    #print
-    #for p in productions: print p
-
+#    productions += NEW
+#    productions[:] = list(set([p for p in productions 
+#                if len(p.rhs()) > 1 or isinstance(p.rhs()[0], basestring)]))
 
 
 def convert_to_cnf(input_grammar):
     """Return a CNF grammar that accepts the same language as `grammar`."""
-    # This should be a method in nltk.grammar.
-    # S
     grammar = deepcopy(input_grammar)
-    #grammar = input_grammar
+
     if grammar.is_chomsky_normal_form():
         print >> sys.stderr, "Already CNF"
         return grammar
@@ -208,36 +215,37 @@ def convert_to_cnf(input_grammar):
     letters = _letter_gen(grammar) # sequential letter generator
     productions = grammar.productions()
 
+    # Replace RHS Terminals
     replace_rhs_terminals(productions, letters)
-
     for prod in productions:
         assert all([isinstance(token, Nonterminal) for token in prod.rhs() 
                     if len(prod.rhs()) > 1])
-    #print 'REPLACED RHS TERMINALS'
-    #print grammar, '\n'
 
+
+    # Binarize rules
     _binarize(productions, letters)
     for prod in productions:
         assert len(prod.rhs()) <= 2
-    #print 'BINARIZED'
-    #print grammar, '\n'
 
     #TODO: is this necessary? why can't S be on rhs?
-    _replace_start(productions, letters)
+    #_replace_start(productions, letters)
 
 
+    # Remove empty productions
     _remove_empty_productions(productions, letters)
-    #print 'REMOVED EMPTY PRODUCTION'
-    #print grammar, '\n'
 
 
-    _remove_unit_productions(productions, letters)
-    #print grammar
-    #print grammar.is_chomsky_normal_form()
-    #grammar._calculate_grammar_forms()
-    #assert grammar.is_chomsky_normal_form()
-    return grammar
-    #print grammar.is_chomsky_normal_form()
+    # Remove unit productions
+    new_prods = _remove_unit_productions(productions, letters)
+    #TODO: the problem is here. it's messing up the rule S -> A in empty.cfg
+
+    # Recalculate forms, including is_cnf
+    print; print
+    print new_prods
+    gram = ContextFreeGrammar(grammar.start(), new_prods)
+    return gram
+#    grammar._calculate_grammar_forms()
+#    return grammar
 
 
 
@@ -248,8 +256,9 @@ def convert(filename):
     print 'INITIALLY'
     print grammar
     print '*' * 10
-    convert_to_cnf(grammar)
-    print grammar
+    converted = convert_to_cnf(grammar)
+    print 'CONVERTED:', converted
+    print "CNF:", converted.is_chomsky_normal_form()
 
 
 def remove_all(the_list, *args):
