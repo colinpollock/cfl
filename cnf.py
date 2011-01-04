@@ -143,8 +143,8 @@ def _remove_unit_productions(productions, letters):
     """Return a list of Productions without unit productions. TODO"""
     # Basis step. Add (A, A) for all nonterminals A
     #TODO: is it ok to ignore NTs on RHS?
-    print "REMOVE UNIT PRODUCTIONS"
-    print productions
+    #print "REMOVE UNIT PRODUCTIONS"
+    #print productions
     unit_pairs = defaultdict(set)
     nonterminals = [p.lhs() for p in productions]
     for nt in nonterminals:
@@ -172,29 +172,31 @@ def _remove_unit_productions(productions, letters):
     #        for prod in new_prods:
     #            p = Production(lhs, prod.rhs())
     #            NEW.append(p)
-    print unit_pairs
-    print
+    #print unit_pairs
+    #print
     for (RHS, LHSides) in unit_pairs.iteritems():
         for LHS in LHSides:
-            print
-            print '(%s, %s)' % (LHS, RHS)
-            print type(LHS), type(RHS)
-            print productions
+            #print
+            #print '(%s, %s)' % (LHS, RHS)
+            #print type(LHS), type(RHS)
+            #print productions
 
             for prod in productions:
-                print 'prod:', prod
+            #    print 'prod:', prod
                 if prod.lhs() == RHS:
-                    print '  match for RHS'
+            #        print '  match for RHS'
                     if isinstance(prod.rhs()[0], basestring) or len(prod.rhs()) > 1:
-                        print 
-                        print '  GOOD PROD', prod
+            #            print 
+            #            print '  GOOD PROD', prod
                         P = Production(LHS, prod.rhs())
-                        print '  ADDING', P
+            #            print '  ADDING', P
                         NEW.add(P)
                     else:
-                        print '  BAD PROD'
+                        pass
+            #            print '  BAD PROD'
                 else:
-                    print '  no match for RHS'
+                    pass
+                    #print '  no match for RHS'
 
     return NEW
 
@@ -240,8 +242,8 @@ def convert_to_cnf(input_grammar):
     #TODO: the problem is here. it's messing up the rule S -> A in empty.cfg
 
     # Recalculate forms, including is_cnf
-    print; print
-    print new_prods
+    #print; print
+    #print new_prods
     gram = ContextFreeGrammar(grammar.start(), new_prods)
     return gram
 #    grammar._calculate_grammar_forms()

@@ -42,9 +42,10 @@ class CFLGenerator(object):
             raise ValueError('Arg grammar must be nltk.grammar.Grammar or str.')
         
         if not self.grammar.is_chomsky_normal_form():
-            raise ValueError('Input grammar must be in CNF '
-                             '(conversion method isn\'t implemented)')
-            #convert_to_cnf(self.grammar)
+            #raise ValueError('Input grammar must be in CNF '
+            #                 '(conversion method isn\'t implemented)')
+            self.grammar = convert_to_cnf(self.grammar)
+            assert self.grammar.is_chomsky_normal_form()
 
         self.productions = self.grammar.productions()
 
@@ -300,7 +301,8 @@ def main(argv):
     else:
         length = lambda: random.randint(1, 10)
         generator = CFLGenerator(args[0], 10)
-    results = [generator.generate(length()) for i in range(options.number)]
+    results = [''.join(generator.generate(length())) 
+               for i in range(options.number)]
     if options.the_format == 'string':
         for res in results:
             print >> out, res
