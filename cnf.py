@@ -15,20 +15,22 @@ from pprint import pprint
 import nltk
 from nltk.grammar import Nonterminal, parse_cfg, ContextFreeGrammar, Production
 
-def _letter_gen(grammar):
+def _letter_gen(avoid_strings):
     """Yield 'A', 'B', ..., 'Z', 'AA', ..., 'ZZZ', ...."""
-    nonterminals = [prod.lhs().symbol() for prod in grammar.productions()] + \
-                   [tok for prod in grammar.productions() for tok in prod.rhs()
-                    if isinstance(tok, Nonterminal)]
-    nonterminals = set(nonterminals)
 
     i = 26
     while True:
         reps, index = divmod(i, 26)
-        if string.ascii_uppercase[index] not in nonterminals:
+        if string.ascii_uppercase[index] not in avoid_strings:
             yield string.ascii_uppercase[index] * reps
         i += 1
 
+def _nonterminals(grammar):
+    """Return the Nonterminal strings in `grammar` as a set."""
+    nonterminals = [prod.lhs().symbol() for prod in grammar.productions()] + \
+                   [tok for prod in grammar.productions() for tok in prod.rhs()
+                    if isinstance(tok, Nonterminal)]
+    return set(nonterminals)
 
 def replace_rhs_terminals(productions, letters):
     """Change productions "A -> B ... 'z'" to "A -> B ... Z ; Z -> 'z'"."""
@@ -214,7 +216,8 @@ def convert_to_cnf(input_grammar):
         print >> sys.stderr, "Already CNF"
         return grammar
 
-    letters = _letter_gen(grammar) # sequential letter generator
+    nonterms = _nonterminals(grammar)
+    letters = _letter_gen(nonterms) # sequential letter generator
     productions = grammar.productions()
 
     # Replace RHS Terminals
@@ -257,6 +260,7 @@ def convert(filename):
     print '*' * 10,
     print 'INITIALLY'
     print grammar
+    print "CNF:", grammar.is_chomsky_normal_form()
     print '*' * 10
     converted = convert_to_cnf(grammar)
     print 'CONVERTED:', converted
