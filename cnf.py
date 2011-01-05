@@ -25,15 +25,16 @@ def _letter_gen(avoid_strings):
             yield string.ascii_uppercase[index] * reps
         i += 1
 
-def _nonterminals(grammar):
+def _get_nonterminals(grammar):
     """Return the Nonterminal strings in `grammar` as a set."""
     nonterminals = [prod.lhs().symbol() for prod in grammar.productions()] + \
                    [tok for prod in grammar.productions() for tok in prod.rhs()
                     if isinstance(tok, Nonterminal)]
     return set(nonterminals)
 
-def replace_rhs_terminals(productions, letters):
-    """Change productions "A -> B ... 'z'" to "A -> B ... Z ; Z -> 'z'"."""
+def replace_rhs_terminals(input_productions, letters):
+    """Return new productions "A -> B ... 'z'" to "A -> B ... Z ; Z -> 'z'"."""
+    productions = deepcopy(input_productions)
     new_prods = []
     delete_prods = []
     # TODO: do a listcomp first then act on all the results
@@ -58,13 +59,16 @@ def replace_rhs_terminals(productions, letters):
 
     remove_all(productions, *delete_prods)
     productions += new_prods
+    return productions
 
 #### STEP 2 ####
-def _binarize(productions, letters):
+def _binarize(input_productions, letters):
     """Convert "A -> B C D" to "A -> B X ; X -> C D
 
     For each production with more than two nonterminals on its rhs, replace
-    it with a set of binary rules."""
+    it with a set of binary rules.
+    """
+    productions = deepcopy(input_productions)
 
     #TODO: what about duplicate productions?
     new_prods = []
@@ -80,6 +84,7 @@ def _binarize(productions, letters):
 
     productions += new_prods
     remove_all(productions, *too_long)
+    return productions
 
 
 # STEP 3 #
@@ -88,9 +93,10 @@ def _replace_start(productions, letters):
     pass
 
 # STEP 4 #
-def _remove_empty_productions(productions, letters):
+def _remove_empty_productions(input_productions, letters):
     """Remove productions with empty right hand sides."""
-    copied_prods = deepcopy(productions)
+    copied_prods = deepcopy(input_productions)
+    
 
     #
     # Find all nonterminals that generate the emptry string.
@@ -119,7 +125,7 @@ def _remove_empty_productions(productions, letters):
     #print '\n\nADDING NEW RULES'
     new_prods = []
 
-    #productions[:] = input_productions
+    productions = deepcopy(input_productions)
     for nonterm in gen_empty: 
         prods = [prod for prod in productions
                  if len(prod.rhs()) == 2 and nonterm in prod.rhs()]
@@ -134,19 +140,19 @@ def _remove_empty_productions(productions, letters):
         
     productions += new_prods
     productions[:] = [p for p in productions if p.rhs()]
+    return productions
 
 
-def _unit_productions(productions):
+def _get_unit_productions(productions):
     return [p for p in productions if len(p.rhs()) == 1 and isinstance(p.rhs()[0], Nonterminal)]
 
 
 # STEP 5 #
-def _remove_unit_productions(productions, letters):
+def _remove_unit_productions(input_productions, letters):
     """Return a list of Productions without unit productions. TODO"""
     # Basis step. Add (A, A) for all nonterminals A
     #TODO: is it ok to ignore NTs on RHS?
-    #print "REMOVE UNIT PRODUCTIONS"
-    #print productions
+    productions = deepcopy(input_productions)
     unit_pairs = defaultdict(set)
     nonterminals = [p.lhs() for p in productions]
     for nt in nonterminals:
@@ -154,44 +160,20 @@ def _remove_unit_productions(productions, letters):
 
     # Induction
     #TODO: keep doing this until no more are added?
-    for prod in _unit_productions(productions):
+    for prod in _get_unit_productions(productions):
         first = prod.lhs()
         (second,) = prod.rhs()
         As = unit_pairs[first]
         for A in As:
             unit_pairs[second].add(A)
-    #print unit_pairs
-    #
-    # Remove Unit Pairs
-    #
+
     NEW = set()
-    #for rhs, lhsides in unit_pairs.iteritems():
-    #    for lhs in lhsides:
-    #        new_prods = [prod for prod in productions
-    #                    if len(prod.rhs()) > 1 and prod.lhs() == rhs]
-    #        #print "%s -> %s" % (lhs, rhs),
-    #        #print new_prods
-    #        for prod in new_prods:
-    #            p = Production(lhs, prod.rhs())
-    #            NEW.append(p)
-    #print unit_pairs
-    #print
     for (RHS, LHSides) in unit_pairs.iteritems():
         for LHS in LHSides:
-            #print
-            #print '(%s, %s)' % (LHS, RHS)
-            #print type(LHS), type(RHS)
-            #print productions
-
             for prod in productions:
-            #    print 'prod:', prod
                 if prod.lhs() == RHS:
-            #        print '  match for RHS'
                     if isinstance(prod.rhs()[0], basestring) or len(prod.rhs()) > 1:
-            #            print 
-            #            print '  GOOD PROD', prod
                         P = Production(LHS, prod.rhs())
-            #            print '  ADDING', P
                         NEW.add(P)
                     else:
                         pass
@@ -209,35 +191,29 @@ def _remove_unit_productions(productions, letters):
 
 
 def convert_to_cnf(input_grammar):
-    """Return a CNF grammar that accepts the same language as `grammar`."""
-    grammar = deepcopy(input_grammar)
+    """Return a new CNF grammar that accepts the same language as `grammar`."""
 
-    if grammar.is_chomsky_normal_form():
+    if input_grammar.is_chomsky_normal_form():
         print >> sys.stderr, "Already CNF"
         return grammar
+        return deepcopy(input_grammar)
 
-    nonterms = _nonterminals(grammar)
-    letters = _letter_gen(nonterms) # sequential letter generator
-    productions = grammar.productions()
+    productions = deepcopy(input_grammar.productions())
+    letters = _letter_gen(_get_nonterminals(input_grammar)) 
 
     # Replace RHS Terminals
-    replace_rhs_terminals(productions, letters)
+    productions = replace_rhs_terminals(productions, letters)
     for prod in productions:
         assert all([isinstance(token, Nonterminal) for token in prod.rhs() 
                     if len(prod.rhs()) > 1])
 
-
     # Binarize rules
-    _binarize(productions, letters)
+    productions = _binarize(productions, letters)
     for prod in productions:
         assert len(prod.rhs()) <= 2
 
-    #TODO: is this necessary? why can't S be on rhs?
-    #_replace_start(productions, letters)
-
-
     # Remove empty productions
-    _remove_empty_productions(productions, letters)
+    productions = _remove_empty_productions(productions, letters)
 
 
     # Remove unit productions
@@ -247,7 +223,7 @@ def convert_to_cnf(input_grammar):
     # Recalculate forms, including is_cnf
     #print; print
     #print new_prods
-    gram = ContextFreeGrammar(grammar.start(), new_prods)
+    gram = ContextFreeGrammar(input_grammar.start(), new_prods)
     return gram
 #    grammar._calculate_grammar_forms()
 #    return grammar
@@ -271,5 +247,6 @@ def remove_all(the_list, *args):
     for arg in args:
         while arg in the_list:
             the_list.remove(arg)
+
 if __name__ == '__main__':
     convert(sys.argv[1])
