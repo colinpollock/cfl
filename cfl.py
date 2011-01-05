@@ -282,6 +282,9 @@ def main(argv):
     parser.add_option('-o', '--outfile', action='store', default='-',
                       metavar='<FILENAME>', 
                       help="Filename of output. Defaults to stdout ('-').")
+    parser.add_option('-s', '--separator', action='store', default='',
+                      metavar='<SEPARATOR>', 
+                      help='Separator between terminals.')
 
     options, args = parser.parse_args(argv)
     if options.the_format not in ('string', 'json'):
@@ -301,7 +304,7 @@ def main(argv):
     else:
         length = lambda: random.randint(1, 10)
         generator = CFLGenerator(args[0], 10)
-    results = [''.join(generator.generate(length())) 
+    results = [options.separator.join(generator.generate(length())) 
                for i in range(options.number)]
     if options.the_format == 'string':
         for res in results:
