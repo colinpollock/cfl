@@ -6,6 +6,9 @@
 
 * Put try/except in main() to handle GenerationFailure. 
 
+* Store list of lengths that generator fails on in the generator and check the
+  list before trying to generate.
+
 * Write tests for:
   *  the preprocessing of CFLGenerator
   *  Check randomness of generated strings.

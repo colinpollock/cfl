@@ -122,9 +122,7 @@ def _remove_empty_productions(input_productions, letters):
         N = new_len
 
     # ADD NEW RULES
-    #print '\n\nADDING NEW RULES'
     new_prods = []
-
     productions = deepcopy(input_productions)
     for nonterm in gen_empty: 
         prods = [prod for prod in productions
@@ -175,20 +173,7 @@ def _remove_unit_productions(input_productions, letters):
                     if isinstance(prod.rhs()[0], basestring) or len(prod.rhs()) > 1:
                         P = Production(LHS, prod.rhs())
                         NEW.add(P)
-                    else:
-                        pass
-            #            print '  BAD PROD'
-                else:
-                    pass
-                    #print '  no match for RHS'
-
     return NEW
-
-    #print NEW
-#    productions += NEW
-#    productions[:] = list(set([p for p in productions 
-#                if len(p.rhs()) > 1 or isinstance(p.rhs()[0], basestring)]))
-
 
 def convert_to_cnf(input_grammar):
     """Return a new CNF grammar that accepts the same language as `grammar`."""
@@ -215,18 +200,11 @@ def convert_to_cnf(input_grammar):
     # Remove empty productions
     productions = _remove_empty_productions(productions, letters)
 
-
     # Remove unit productions
     new_prods = _remove_unit_productions(productions, letters)
-    #TODO: the problem is here. it's messing up the rule S -> A in empty.cfg
 
-    # Recalculate forms, including is_cnf
-    #print; print
-    #print new_prods
     gram = ContextFreeGrammar(input_grammar.start(), new_prods)
     return gram
-#    grammar._calculate_grammar_forms()
-#    return grammar
 
 
 
