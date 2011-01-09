@@ -32,6 +32,8 @@ def _get_nonterminals(grammar):
                     if isinstance(tok, Nonterminal)]
     return set(nonterminals)
 
+
+
 def replace_rhs_terminals(input_productions, letters):
     """Return new productions "A -> B ... 'z'" to "A -> B ... Z ; Z -> 'z'"."""
     productions = deepcopy(input_productions)
@@ -39,11 +41,13 @@ def replace_rhs_terminals(input_productions, letters):
     delete_prods = []
     # TODO: do a listcomp first then act on all the results
     for prod in productions:
+        # We don't care about rules like "A -> B", "A -> 'b'", "A -> B C D".
         if all([isinstance(token, Nonterminal) for token in prod.rhs()]) or  \
-                len(prod.rhs()) < 2: #TODO: how should I indent here?
+                len(prod.rhs()) < 2: 
             continue
 
-        # Add rule U -> 'a' and replace rule B -> A..'a' with B -> A..U
+        # Add rule U -> 'a' and replace rule B -> A..'a' with B -> A..U for each
+        # nonterminal 'a' on a RHS.
         lhs = prod.lhs()
         rhs = []
         for token in prod.rhs():
@@ -106,6 +110,7 @@ def _remove_empty_productions(input_productions, letters):
     gen_empty = [prod.lhs() for prod in copied_prods
                  if len(prod.rhs()) == 0]
     N = len(gen_empty)
+
     # Induction:
     while True:
         for nonterm in gen_empty:
@@ -115,12 +120,14 @@ def _remove_empty_productions(input_productions, letters):
                     better.remove(nonterm)
                     prod._rhs = tuple(better)
 
-        gen_empty = [prod.lhs() for prod in copied_prods if len(prod.rhs()) == 0]
+        gen_empty[:] = [prod.lhs() for prod in copied_prods 
+                     if len(prod.rhs()) == 0]
         new_len = len(gen_empty)
         if new_len == N:
             break
         N = new_len
 
+    print 'gen_empty', gen_empty
     # ADD NEW RULES
     new_prods = []
     productions = deepcopy(input_productions)
@@ -180,7 +187,6 @@ def convert_to_cnf(input_grammar):
 
     if input_grammar.is_chomsky_normal_form():
         print >> sys.stderr, "Already CNF"
-        return grammar
         return deepcopy(input_grammar)
 
     productions = deepcopy(input_grammar.productions())
@@ -199,6 +205,9 @@ def convert_to_cnf(input_grammar):
 
     # Remove empty productions
     productions = _remove_empty_productions(productions, letters)
+    print "POST EMPTY"
+    print productions
+    print
 
     # Remove unit productions
     new_prods = _remove_unit_productions(productions, letters)
