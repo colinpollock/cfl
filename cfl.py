@@ -6,7 +6,10 @@ from __future__ import division
 
 from optparse import OptionParser
 import random
-import simplejson
+try: 
+    import simplejson as json
+except ImportError:
+    import json
 import sys
 
 import nltk
@@ -310,7 +313,7 @@ def main(argv):
         for res in results:
             print >> out, res
     elif options.the_format == 'json':
-        print >> out, simplejson.dumps(results)
+        print >> out, json.dumps(results)
 
 
 if __name__ == '__main__':
