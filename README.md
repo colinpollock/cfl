@@ -1,9 +1,8 @@
-README
+Context Free Language Projects
+==============================
 
-The center of this repo is cfl.CFLGenerator. Eventually some sub-projects that
-use the generator will split off.
-
-# cfl.CFLGenerator #
+CFLGenerator
+----------------
   cfl.CFLGenerator is initialized with a grammar (in the form required by NLTK's
   grammar module). Its method generate(length) returns a string of the requested
   length that is derivable from the grammar.
@@ -12,7 +11,8 @@ use the generator will split off.
   equal probability of being generated. This is accomplished by using the
   algorithm described in Mairson 1994.
 
-# Related Projects #
+Related Projects
+----------------
 * A regular expression tester. Present the user with a set of positive examples
   and a set of negative examples of some RE and ask the user for an RE that
   matches the former but not the latter. 
